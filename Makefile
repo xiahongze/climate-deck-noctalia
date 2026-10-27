@@ -6,6 +6,6 @@ test:
 	python3 tests/test_package.py
 lint:
 	noctalia plugins lint climate-deck
-	@for f in climate-deck/*.luau; do luac -p "$$f"; done
+	@set -e; for f in climate-deck/*.luau; do luac -p "$$f"; done
 package:
 	./scripts/package.sh

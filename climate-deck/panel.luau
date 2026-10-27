@@ -68,7 +68,7 @@ local function climate(a)
   else
     for _, m in ipairs({30, 60, 120, 240}) do
       local minutes = m
-      table.insert(timer, button(m < 60 and "30m" or tostring(m / 60) .. "h", function() commandInfo(timerField, minutes) end, false, online))
+      table.insert(timer, button(m < 60 and "30m" or string.format("%dh", m / 60), function() commandInfo(timerField, minutes) end, false, online))
     end
   end
   local result = {

@@ -1,0 +1,18 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y lua5.4 python3 make
+      - run: make test
+      - name: Check Lua syntax
+        run: set -e; for f in climate-deck/*.luau; do luac -p "$f"; done
+      - run: make package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: climate-deck-noctalia
+          path: dist/climate-deck-noctalia.tar.gz
