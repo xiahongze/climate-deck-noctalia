@@ -1,6 +1,6 @@
 id = "xiahongze/climate-deck"
 name = "Climate Deck"
-version = "0.1.0"
+version = "0.1.1"
 plugin_api = 24
 author = "Hongze Xia"
 license = "MIT"
@@ -45,5 +45,7 @@ entry = "desktop.luau"
 [[panel]]
 id = "panel"
 entry = "panel.luau"
+placement = "attached"
+open_near_click = true
 width = 480
 height = 740

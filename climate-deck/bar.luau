@@ -7,4 +7,4 @@ local function render(s)
 end
 noctalia.state.watch("status", render)
 function update() render(noctalia.state.get("status")) end
-function onClick() noctalia.runAsync({"noctalia", "msg", "panel-toggle", "xiahongze/climate-deck:panel"}) end
+function onClick() noctalia.togglePanel("xiahongze/climate-deck:panel") end

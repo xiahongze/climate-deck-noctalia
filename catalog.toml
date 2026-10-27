@@ -1,7 +1,7 @@
 [[plugin]]
 id = "xiahongze/climate-deck"
 name = "Climate Deck"
-version = "0.1.0"
+version = "0.1.1"
 author = "Hongze Xia"
 license = "MIT"
 icon = "temperature"
