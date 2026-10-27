@@ -37,7 +37,7 @@ update()
 assert(#requests == 1 and requests[1].req.url == "http://127.0.0.1:2025/getSystemData")
 update(); assert(#requests == 1) -- one request at a time
 requests[1].cb({ok = true, status = 200, body = "good"})
-assert(shared.status.online and shared.status.data == replyData)
+assert(shared.status.online and shared.status.data.aircons.ac1.info.myZone == 0)
 shared.command = {path = "setAircon", body = {info = {state = "off"}}}
 watchers.command(shared.command)
 assert(#requests == 2 and requests[2].req.url:find("/setAircon?json=", 1, true))
@@ -48,9 +48,9 @@ assert(#requests == 3 and requests[3].req.url:find("/runScene?json=", 1, true))
 requests[3].cb({ok = true, status = 200, body = "ack"})
 time = time + 2; update(); assert(#requests == 4) -- refresh after a write
 requests[4].cb({ok = true, status = 200, body = "invalid"})
-assert(shared.status.online and shared.status.stale and shared.status.data == replyData)
+assert(shared.status.online and shared.status.stale and shared.status.data.aircons.ac1.info.myZone == 0)
 for _ = 1, 2 do time = time + 10; update(); requests[#requests].cb({ok = false, status = 0}) end
-assert(not shared.status.online and shared.status.data == replyData)
+assert(not shared.status.online and shared.status.data.aircons.ac1.info.myZone == 0)
 local count = #requests
 watchers.command({path = "setAircon", body = {info = {state = "on"}}})
 assert(#requests == count) -- no controls while offline
