@@ -4,6 +4,8 @@ A native Noctalia 5 plugin for monitoring and controlling a MyPlace / MyAir duct
 
 The Climate page provides power, mode, fan, MyZone, zone controls and the quick timer. The Scenes page creates, edits, runs and deletes the scenes stored on the tablet. Setup provides unit and zone renaming, MyComfort controls, the MyAuto temperature range and the actual-temperature display option. History graphs are not included.
 
+![Scene editor in Noctalia, shown with the redacted test fixture](docs/screenshots/scene-editor.png)
+
 ## Requirements
 
 - Noctalia 5.0.0-beta.9 or newer (plugin API 24); tested with 5.3.0 on Niri.
