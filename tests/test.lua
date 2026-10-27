@@ -26,7 +26,7 @@ noctalia = {
     watch = function(k, f) watchers[k] = f end},
   setUpdateInterval = function(ms) assert(ms == 1000) end,
   http = function(req, cb) table.insert(requests, {req = req, cb = cb}); return true end,
-  json = {encode = function(v) return "encoded" end, decode = function(v) if v == "good" then return replyData elseif v == "ack" then return {ack = true} end end},
+  json = {encode = function(v) return "encoded" end, decode = function(v) if v == "good" then return replyData elseif v == "ack" then return {ack = true} elseif v == "reject" then return {ack = false, reason = "Rejected"} end end},
   string = {urlEncode = function(v) return v end}
 }
 local realRequire = require
@@ -38,17 +38,21 @@ assert(#requests == 1 and requests[1].req.url == "http://127.0.0.1:2025/getSyste
 update(); assert(#requests == 1) -- one request at a time
 requests[1].cb({ok = true, status = 200, body = "good"})
 assert(shared.status.online and shared.status.data.aircons.ac1.info.myZone == 0)
-shared.command = {path = "setAircon", body = {info = {state = "off"}}}
+shared.command = {path = "setAircon", body = {info = {state = "off"}}, token = "edit-1"}
 watchers.command(shared.command)
 assert(#requests == 2 and requests[2].req.url:find("/setAircon?json=", 1, true))
 watchers.command({path = "runScene", body = {id = "s10001"}})
 assert(#requests == 2)
 requests[2].cb({ok = true, status = 200, body = "ack"})
+assert(shared.commandResult.token == "edit-1" and shared.commandResult.ok)
 assert(#requests == 3 and requests[3].req.url:find("/runScene?json=", 1, true))
 requests[3].cb({ok = true, status = 200, body = "ack"})
 time = time + 2; update(); assert(#requests == 4) -- refresh after a write
 requests[4].cb({ok = true, status = 200, body = "invalid"})
 assert(shared.status.online and shared.status.stale and shared.status.data.aircons.ac1.info.myZone == 0)
+watchers.command({path = "setScene", body = {id = "s10001"}, token = "save-1"})
+requests[#requests].cb({ok = true, status = 200, body = "reject"})
+assert(shared.commandResult.token == "save-1" and not shared.commandResult.ok and shared.commandResult.reason == "Rejected")
 for _ = 1, 2 do time = time + 10; update(); requests[#requests].cb({ok = false, status = 0}) end
 assert(not shared.status.online and shared.status.data.aircons.ac1.info.myZone == 0)
 local count = #requests

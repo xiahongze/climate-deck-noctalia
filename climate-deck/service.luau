@@ -1,6 +1,6 @@
 local model = require("./model.luau")
 local base, acKey, interval
-local data, failures, lastUpdated = nil, 0, 0
+local data, failures, lastUpdated, pollSequence = nil, 0, 0, 0
 local queue, busy, nextPoll, generation = {}, false, 0, 0
 local pending = {}
 local function copy(value)
@@ -46,14 +46,14 @@ end
 
 local function publish(message)
   noctalia.state.set("status", {data = visibleData(), online = lastUpdated > 0 and failures < 3,
-    stale = failures > 0, configured = base ~= nil, updated = lastUpdated, error = message or ""})
+    stale = failures > 0, configured = base ~= nil, updated = lastUpdated, pollSequence = pollSequence, error = message or ""})
 end
 local function configure()
   generation = generation + 1
   base = model.base(noctalia.getConfig("host"))
   acKey = noctalia.getConfig("aircon") or "ac1"
   interval = math.max(3, tonumber(noctalia.getConfig("interval")) or 10)
-  data, failures, lastUpdated, queue, busy, nextPoll, pending = nil, 0, 0, {}, false, 0, {}
+  data, failures, lastUpdated, queue, busy, nextPoll, pending, pollSequence = nil, 0, 0, {}, false, 0, {}, 0
   publish(base and "Connecting…" or "Set the tablet address in plugin settings")
 end
 local function request(url, done)
@@ -73,10 +73,13 @@ local function pump()
   if not body then publish("Could not encode command"); return end
   request(base .. "/" .. item.path .. "?json=" .. noctalia.string.urlEncode(body), function(res)
     local ack = res.ok and res.status == 200 and noctalia.json.decode(res.body or "") or nil
-    if not ack or ack.ack ~= true then
+    local ok = ack and ack.ack == true
+    local reason = ok and "" or ((ack and ack.reason) or "Command failed")
+    if not ok then
       pending = {}
-      publish((ack and ack.reason) or "Command failed")
+      publish(reason)
     end
+    if item.token then noctalia.state.set("commandResult", {token = item.token, ok = ok == true, reason = reason}) end
     nextPoll = os.time() + 2
     pump()
   end)
@@ -91,6 +94,7 @@ function update()
     local reply = res.ok and res.status == 200 and noctalia.json.decode(res.body or "") or nil
     if type(reply) == "table" and type(reply.aircons) == "table" and next(reply.aircons) then
       data, failures, lastUpdated = reply, 0, os.time()
+      pollSequence = pollSequence + 1
       reconcile()
       publish("")
     else
@@ -115,9 +119,9 @@ noctalia.state.watch("command", function(cmd)
       pending = rest; table.insert(pending, item)
     end
     publish("")
-    table.insert(queue, {path = cmd.path, body = {[acKey] = cmd.body}})
+    table.insert(queue, {path = cmd.path, body = {[acKey] = cmd.body}, token = cmd.token})
   elseif cmd.path == "setScene" or cmd.path == "runScene" or cmd.path == "setMySystem" then
-    table.insert(queue, {path = cmd.path, body = cmd.body})
+    table.insert(queue, {path = cmd.path, body = cmd.body, token = cmd.token})
   else return end
   pump()
 end)

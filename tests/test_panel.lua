@@ -1,6 +1,10 @@
 local model = assert(loadfile("climate-deck/model.luau"))()
 local originalRequire = require
-require = function(path) if path == "./model.luau" then return model end return originalRequire(path) end
+require = function(path)
+  if path == "./model.luau" then return model end
+  if path == "./scene_editor.luau" then return assert(loadfile("climate-deck/scene_editor.luau"))() end
+  return originalRequire(path)
+end
 local state = {status = {online = true, data = {aircons = {ac1 = {
   info = {name = "Home", state = "on", mode = "heat", fan = "low", myZone = 1},
   zones = {z01 = {number = 1, name = "Living", type = 1, error = 0, measuredTemp = 21, setTemp = 23, state = "open"},
