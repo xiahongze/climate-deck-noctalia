@@ -33,7 +33,7 @@ local function pump()
   request(base .. "/" .. item.path .. "?json=" .. noctalia.string.urlEncode(body), function(res)
     local ack = res.ok and res.status == 200 and noctalia.json.decode(res.body or "") or nil
     if not ack or ack.ack ~= true then publish((ack and ack.reason) or "Command failed") end
-    nextPoll = 0
+    nextPoll = os.time() + 2
     pump()
   end)
 end

@@ -46,6 +46,18 @@ local function climate(a)
       row({label((tonumber(info.myZone) == zone.number and "MYZONE · " or "") .. (zone.sensor and "Target" or "Opening"), 11, "on_surface/0.65"), ui.spacer({flexGrow = 1}),
         button("−", function() commandZone(zone.key, field, math.max(lo, (value or lo) - step)) end, false, online and value ~= nil), label(value and (tostring(value) .. suffix) or "—", 14), button("+", function() commandZone(zone.key, field, math.min(hi, (value or lo) + step)) end, false, online and value ~= nil)})}))
   end
+  local zoneChoices = {}
+  if (tonumber(info.myZone) or 0) > 0 and not info.quietNightModeIsRunning then
+    for _, z in ipairs(model.zones(a)) do
+      local zone = z
+      if zone.sensor and not zone.error and zone.number then
+        table.insert(zoneChoices, button(zone.name, function()
+          commandInfo("myZone", zone.number)
+          if not zone.open then commandZone(zone.key, "state", "open") end
+        end, tonumber(info.myZone) == zone.number, online))
+      end
+    end
+  end
   local timerField = info.state == "on" and "countDownToOff" or "countDownToOn"
   local mins = tonumber(info[timerField]) or 0
   local timer = {label(info.state == "on" and "TURN OFF IN" or "TURN ON IN", 11, "on_surface/0.65")}
@@ -65,6 +77,10 @@ local function climate(a)
       label("MODE", 11, "on_surface/0.65"), row(modeButtons), label("FAN", 11, "on_surface/0.65"), row(fanButtons), row(timer)}),
     row({label("ZONES", 12, "on_surface/0.65"), ui.spacer({flexGrow = 1}), label(tostring(#zoneCards), 12, "on_surface/0.65")})
   }
+  if #zoneChoices > 0 then
+    table.insert(result, label("MYZONE", 11, "on_surface/0.65"))
+    for _, choice in ipairs(zoneChoices) do table.insert(result, choice) end
+  end
   for _, z in ipairs(zoneCards) do table.insert(result, z) end
   return result
 end
@@ -89,7 +105,10 @@ local function setup(a)
     return row({label(title, 14), ui.spacer({flexGrow = 1}), ui.toggle({checked = i[key] == true, enabled = status.online, onChange = function(v) commandInfo(key, v == "true") end})})
   end
   return {label("MyComfort", 18), card({setting("MySleep$aver", "quietNightModeEnabled"), setting("MyFan speed", "aaAutoFanModeEnabled"),
-    setting("MyTemp", "climateControlModeEnabled"), setting("MyAuto", "myAutoModeEnabled")}),
+    label("Temperature control", 14), row({
+      button("MyZone", function() send("setAircon", {info = {climateControlModeEnabled = false, myAutoModeEnabled = false}}) end, not i.climateControlModeEnabled and not i.myAutoModeEnabled, status.online),
+      button("MyTemp", function() send("setAircon", {info = {climateControlModeEnabled = true, myAutoModeEnabled = false}}) end, i.climateControlModeEnabled == true and not i.myAutoModeEnabled, status.online),
+      button("MyAuto", function() send("setAircon", {info = {climateControlModeEnabled = false, myAutoModeEnabled = true}}) end, i.myAutoModeEnabled == true, status.online)})}),
     label("Connection settings are available in Noctalia’s plugin settings.", 12, "on_surface/0.65"),
     button("Open plugin settings", function() noctalia.runAsync({"noctalia", "msg", "settings-open-plugin", "xiahongze/climate-deck"}) end)}
 end
