@@ -2,7 +2,7 @@
 
 A native Noctalia 5 plugin for monitoring and controlling a MyPlace / MyAir ducted air conditioner over your local network. It is a port of [Climate Deck](https://github.com/xiahongze/climate-deck), using Noctalia’s own controls and theme palette. The tablet is contacted directly; no cloud account or helper daemon is needed.
 
-This is an early port. Power, mode, fan, MyZone, zone opening and targets, the quick timer, scene activation and scheduling, and basic MyComfort settings are available. Scene creation/editing/deletion, history graphs, zone and unit renaming, and MyAuto range settings from the Plasma widget are not yet available.
+The Climate page provides power, mode, fan, MyZone, zone controls and the quick timer. The Scenes page creates, edits, runs and deletes the scenes stored on the tablet. Setup provides unit and zone renaming, MyComfort controls, the MyAuto temperature range and the actual-temperature display option. History graphs are not included.
 
 ## Requirements
 
@@ -41,6 +41,10 @@ To find the tablet, inspect your router’s client list or see [the protocol not
 
 The service polls `GET /getSystemData` without pairing parameters. Commands use the tablet’s local HTTP API and are serialized. The last reading stays visible after a failed poll; controls lock after three consecutive failures. Edits remain visible briefly while the tablet catches up and are discarded if the tablet rejects the command. The tablet runs its own quick timer and scene schedules.
 
+To create a scene, open **Scenes → + New**, name it, choose the schedule and the aircon and zone settings, then save it. **Edit** changes an existing scene; **Delete** requires a second click. Scene names are limited to 12 characters. The editor keeps other air conditioners in a scene and leaves unrelated device groups untouched. A scene save stays open until a subsequent tablet read confirms it; an accepted command alone does not prove the tablet stored it.
+
+Use **Setup** to rename the unit or a zone (1–12 characters; no backslash). MyAuto heat must be 16–28°C, cool must be 20–32°C, and the two must be at least 4°C apart.
+
 MyPlace’s LAN API does not authenticate requests or encrypt them. Only use it on a network you trust. See [docs/API.md](docs/API.md) for the protocol, behavior, and attribution to the original project.
 
 ## Development
@@ -51,7 +55,7 @@ make lint        # Noctalia plugin lint and Lua syntax checks
 make package     # dist/climate-deck-noctalia.tar.gz
 ```
 
-For a manual test without a real tablet, run `python3 tests/fake_tablet.py` and set the tablet address to `127.0.0.1:18765`. The fixture is redacted; the fake accepts commands without changing an air conditioner. Reset the address after testing.
+For a manual test without a real tablet, run `python3 tests/fake_tablet.py` and set the tablet address to `127.0.0.1:18765`. The fixture is redacted; the fake applies commands only to an in-memory copy, which resets when the server stops. Reset the address after testing.
 
 ## Uninstall
 

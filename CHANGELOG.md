@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- Create, edit, run and delete tablet scenes, with read-back confirmation of saves.
+- Rename the aircon and zones, configure the MyAuto temperature range, and toggle the actual-temperature setting.
+- Test scene and setup actions against an in-memory fake tablet.
+
 ## 0.1.2
 
 - Simplify the panel header and show MyZone choices in rows of three.

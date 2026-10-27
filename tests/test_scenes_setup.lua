@@ -30,10 +30,24 @@ named("Save").props.onClick(); assert(named("Use a name of 1–12 characters wit
 input("scene-name-s10001").props.onChange("Morning")
 named("Weekdays").props.onClick()
 named("+15m").props.onClick()
+named("Cool").props.onClick()
+named("High").props.onClick()
+named("Study").props.onClick()
+named("+").props.onClick()
+local function parentWithText(node, text)
+  for _, child in ipairs(node.children) do
+    if child.props.text == text then return node end
+    local p = parentWithText(child, text); if p then return p end
+  end
+end
+local myZoneRow = parentWithText(tree, "Study ★")
+assert(myZoneRow and find(myZoneRow, function(n) return n.kind == "toggle" end).props.enabled == false)
 named("Save").props.onClick()
 local cmd = state.command
 assert(cmd.path == "setScene" and cmd.body.id == "s10001" and cmd.body.name == "Morning")
 assert(cmd.body.activeDays == 62 and cmd.body.startTime == 435 and cmd.body.aircons.ac1.info.uid == "unit-1")
+assert(cmd.body.aircons.ac1.info.mode == "cool" and cmd.body.aircons.ac1.info.fan == "high")
+assert(cmd.body.aircons.ac1.info.myZone == 2 and cmd.body.aircons.ac1.zones.z02.state == "open" and cmd.body.aircons.ac1.zones.z02.setTemp == 23)
 watchers.commandResult({token = cmd.token, ok = true})
 update(2); assert(named("Saving…")) -- ack alone is not confirmation
 state.status.data.myScenes.scenes.s10001 = model.copy(cmd.body)
@@ -76,5 +90,5 @@ assert(range.children[4].props.enabled == false) -- 20 → 21 would leave less t
 range.children[2].props.onClick() -- heat 20 → 19
 assert(state.command.body.info.myAutoHeatTargetTemp == 19 and state.command.body.info.myAutoCoolTargetTemp == 24)
 assert(model.validRange(16, 20) and not model.validRange(21, 24) and not model.validRange(16, 33))
-assert(model.validName("空调") and not model.validName("bad\\name"))
+assert(model.validName("空调") and model.validName("😀😀😀😀😀😀") and not model.validName("😀😀😀😀😀😀😀") and not model.validName("bad\\name"))
 print("scene editing and setup: ok")
