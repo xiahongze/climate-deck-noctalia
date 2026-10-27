@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Simplify the panel header and show MyZone choices in rows of three.
+
 ## 0.1.1
 
 - Open the control panel next to the bar widget, attached to the bar.

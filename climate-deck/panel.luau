@@ -6,8 +6,8 @@ local function send(path, body)
   noctalia.state.set("command", {path = path, body = body, serial = serial, time = os.time()})
 end
 local function ac() return status and status.data and status.data.aircons and status.data.aircons[noctalia.getConfig("aircon")] end
-local function button(text, callback, selected, enabled)
-  return ui.button({text = text, variant = selected and "primary" or "secondary", controlSize = "sm", enabled = enabled ~= false, onClick = callback})
+local function button(text, callback, selected, enabled, stretch)
+  return ui.button({text = text, variant = selected and "primary" or "secondary", controlSize = "sm", enabled = enabled ~= false, onClick = callback, flexGrow = stretch and 1 or nil})
 end
 local function label(text, size, color)
   return ui.label({text = tostring(text or ""), fontSize = size or 13, color = color or "on_surface"})
@@ -54,7 +54,7 @@ local function climate(a)
         table.insert(zoneChoices, button(zone.name, function()
           commandInfo("myZone", zone.number)
           if not zone.open then commandZone(zone.key, "state", "open") end
-        end, tonumber(info.myZone) == zone.number, online))
+        end, tonumber(info.myZone) == zone.number, online, true))
       end
     end
   end
@@ -74,12 +74,15 @@ local function climate(a)
   local result = {
     card({row({ui.column({gap = 2}, {label("INSIDE", 11, "on_surface/0.65"), label(model.temperature(model.average(a)), 36)}), ui.spacer({flexGrow = 1}), ui.column({gap = 4, align = "end"}, {label("TARGET", 11, "on_surface/0.65"), row({button("−", function() if target then send("setAircon", model.targetPayload(a, target - 1)) end end, false, online and target ~= nil), label(target and string.format("%.0f°", target) or "—", 24), button("+", function() if target then send("setAircon", model.targetPayload(a, target + 1)) end end, false, online and target ~= nil)})})}),
       row({label(info.name or "Air conditioner", 13), ui.spacer({flexGrow = 1}), button(info.state == "on" and "Turn off" or "Turn on", function() commandInfo("state", info.state == "on" and "off" or "on") end, info.state == "on", online)}),
-      label("MODE", 11, "on_surface/0.65"), row(modeButtons), label("FAN", 11, "on_surface/0.65"), row(fanButtons), row(timer)}),
-    row({label("ZONES", 12, "on_surface/0.65"), ui.spacer({flexGrow = 1}), label(tostring(#zoneCards), 12, "on_surface/0.65")})
+      label("MODE", 11, "on_surface/0.65"), row(modeButtons), label("FAN", 11, "on_surface/0.65"), row(fanButtons), row(timer)})
   }
   if #zoneChoices > 0 then
     table.insert(result, label("MYZONE", 11, "on_surface/0.65"))
-    for _, choice in ipairs(zoneChoices) do table.insert(result, choice) end
+    for first = 1, #zoneChoices, 3 do
+      local choices = {}
+      for i = first, math.min(first + 2, #zoneChoices) do table.insert(choices, zoneChoices[i]) end
+      table.insert(result, row(choices))
+    end
   end
   for _, z in ipairs(zoneCards) do table.insert(result, z) end
   return result
@@ -122,7 +125,7 @@ local function render()
   elseif page == "scenes" then contents = scenes()
   else contents = setup(a) end
   panel.render(ui.column({gap = 12, padding = 16, flexGrow = 1}, {
-    statusRow(s), row({button("Climate", function() page = "climate"; render() end, page == "climate"), button("Scenes", function() page = "scenes"; render() end, page == "scenes"), button("Setup", function() page = "setup"; render() end, page == "setup"), ui.spacer({flexGrow = 1}), button("Close", function() panel.close() end)}),
+    statusRow(s), row({button("Climate", function() page = "climate"; render() end, page == "climate"), button("Scenes", function() page = "scenes"; render() end, page == "scenes"), button("Setup", function() page = "setup"; render() end, page == "setup")}),
     ui.scroll({gap = 10, flexGrow = 1}, contents)
   }))
 end
