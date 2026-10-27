@@ -1,0 +1,10 @@
+[[plugin]]
+id = "xiahongze/climate-deck"
+name = "Climate Deck"
+version = "0.1.0"
+author = "Hongze Xia"
+license = "MIT"
+icon = "temperature"
+description = "Local MyPlace air conditioning controls"
+plugin_api = 24
+tags = ["climate", "home"]

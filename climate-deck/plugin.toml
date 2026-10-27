@@ -1,0 +1,49 @@
+id = "xiahongze/climate-deck"
+name = "Climate Deck"
+version = "0.1.0"
+plugin_api = 24
+author = "Hongze Xia"
+license = "MIT"
+icon = "temperature"
+description = "Local MyPlace air conditioning controls"
+tags = ["climate", "home"]
+
+[[setting]]
+key = "host"
+type = "string"
+label_key = "settings.host.label"
+description_key = "settings.host.description"
+default = ""
+
+[[setting]]
+key = "aircon"
+type = "select"
+label_key = "settings.aircon.label"
+default = "ac1"
+options = [{ value = "ac1", label_key = "settings.aircon.ac1" }, { value = "ac2", label_key = "settings.aircon.ac2" }, { value = "ac3", label_key = "settings.aircon.ac3" }, { value = "ac4", label_key = "settings.aircon.ac4" }]
+
+[[setting]]
+key = "interval"
+type = "int"
+label_key = "settings.interval.label"
+default = 10
+min = 3
+max = 300
+
+[[service]]
+id = "connection"
+entry = "service.luau"
+
+[[widget]]
+id = "bar"
+entry = "bar.luau"
+
+[[desktop_widget]]
+id = "desktop"
+entry = "desktop.luau"
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 480
+height = 740

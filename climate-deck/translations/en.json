@@ -1,0 +1,10 @@
+{
+  "settings.host.label": "Tablet address",
+  "settings.host.description": "IP address or hostname of the MyPlace tablet, optionally with a port.",
+  "settings.aircon.label": "Air conditioner",
+  "settings.aircon.ac1": "Air conditioner 1",
+  "settings.aircon.ac2": "Air conditioner 2",
+  "settings.aircon.ac3": "Air conditioner 3",
+  "settings.aircon.ac4": "Air conditioner 4",
+  "settings.interval.label": "Refresh interval (seconds)"
+}
