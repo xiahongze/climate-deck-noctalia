@@ -20,20 +20,33 @@ local function find(node, pred)
   for _, child in ipairs(node.children) do local v = find(child, pred); if v then return v end end
 end
 local function named(text) return assert(find(tree, function(n) return n.props.text == text end), "missing " .. text) end
+local function selection(active, inactive)
+  for _, text in ipairs(active) do assert(named(text).props.selected == true, text .. " should be selected") end
+  for _, text in ipairs(inactive) do assert(named(text).props.selected == false, text .. " should not be selected") end
+end
 local function input(key) return assert(find(tree, function(n) return n.kind == "input" and n.props.key == key end), "missing input " .. key) end
 local function update(sequence)
   state.status.pollSequence = sequence; watchers.status(state.status)
 end
 named("Scenes").props.onClick(); named("+ New").props.onClick()
 assert(input("scene-name-s10001"))
+selection({"Scenes", "On", "Heat", "Low", "Living", "Every day"}, {"Climate", "Setup", "Off", "Cool", "High", "Study", "Weekdays", "Weekend"})
+assert(named("Save").props.variant == "primary" and named("Save").props.selected ~= true)
 named("Save").props.onClick(); assert(named("Use a name of 1–12 characters without a backslash."))
 input("scene-name-s10001").props.onChange("Morning")
 named("Weekdays").props.onClick()
+named("Off").props.onClick()
 named("+15m").props.onClick()
 named("Cool").props.onClick()
 named("High").props.onClick()
 named("Study").props.onClick()
 named("+").props.onClick()
+selection({"Off", "Cool", "High", "Study", "Weekdays"}, {"On", "Heat", "Low", "Living", "Every day", "Weekend"})
+local days = assert(find(tree, function(n) return n.kind == "row" and #n.children == 7 and n.children[1].props.text == "M" end))
+for index, day in ipairs(days.children) do assert(day.props.selected == (index <= 5)) end
+-- Live polls must preserve the choices being edited in the scene.
+update(2)
+selection({"Cool", "High", "Study", "Weekdays"}, {"Heat", "Low", "Living", "Every day", "Weekend"})
 local function parentWithText(node, text)
   for _, child in ipairs(node.children) do
     if child.props.text == text then return node end

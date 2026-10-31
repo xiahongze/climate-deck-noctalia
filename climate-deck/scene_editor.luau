@@ -5,7 +5,7 @@ local function label(text, size, color)
 end
 local function row(children) return ui.row({gap = 6, align = "center"}, children) end
 local function button(text, action, selected, enabled, stretch)
-  return ui.button({text = text, variant = selected and "primary" or "secondary", controlSize = "sm", enabled = enabled ~= false, onClick = action, flexGrow = stretch and 1 or nil})
+  return ui.button({text = text, variant = selected and "primary" or "outline", selected = selected == true, controlSize = "sm", enabled = enabled ~= false, onClick = action, flexGrow = stretch and 1 or nil})
 end
 local function toggle(value, action, enabled)
   return ui.toggle({checked = value == true, enabled = enabled ~= false, onChange = function(v) action(v == "true") end})
@@ -29,7 +29,7 @@ function M.render(ctx)
   local zones = sceneAc.zones
   local nodes = {
     row({label(ctx.isNew and "New scene" or "Edit scene", 18), ui.spacer({flexGrow = 1}),
-      button("Cancel", ctx.cancel, false, not ctx.saving), button(ctx.saving and "Saving…" or "Save", ctx.save, true, active)}),
+      button("Cancel", ctx.cancel, false, not ctx.saving), ui.button({text = ctx.saving and "Saving…" or "Save", variant = "primary", controlSize = "sm", enabled = active, onClick = ctx.save})}),
   }
   if ctx.error ~= "" then table.insert(nodes, label(ctx.error, 12, "error")) end
   table.insert(nodes, ui.input({key = "scene-name-" .. d.id, value = d.name or "", placeholder = "Scene name (up to 12 characters)", enabled = active, onChange = function(v) d.name = v end}))

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Keep active pages, climate controls, MyZone choices and scene settings visibly selected (outline when idle, filled when active).
+
 ## 0.2.0
 
 - Create, edit, run and delete tablet scenes, with read-back confirmation of saves.

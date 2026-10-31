@@ -11,7 +11,7 @@ local function send(path, body, token)
 end
 local function ac() return status and status.data and status.data.aircons and status.data.aircons[noctalia.getConfig("aircon")] end
 local function button(text, callback, selected, enabled, stretch)
-  return ui.button({text = text, variant = selected and "primary" or "secondary", controlSize = "sm", enabled = enabled ~= false, onClick = callback, flexGrow = stretch and 1 or nil})
+  return ui.button({text = text, variant = selected and "primary" or "outline", selected = selected == true, controlSize = "sm", enabled = enabled ~= false, onClick = callback, flexGrow = stretch and 1 or nil})
 end
 local function label(text, size, color)
   return ui.label({text = tostring(text or ""), fontSize = size or 13, color = color or "on_surface"})
